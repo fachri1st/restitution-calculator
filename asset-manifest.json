@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/restitution-calculator/static/css/main.d72caea6.css",
+    "main.js": "/restitution-calculator/static/js/main.7a57bdc9.js",
+    "index.html": "/restitution-calculator/index.html",
+    "main.d72caea6.css.map": "/restitution-calculator/static/css/main.d72caea6.css.map",
+    "main.7a57bdc9.js.map": "/restitution-calculator/static/js/main.7a57bdc9.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d72caea6.css",
+    "static/js/main.7a57bdc9.js"
+  ]
+}
