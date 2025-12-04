@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/restitution-calculator/static/css/main.d72caea6.css",
-    "main.js": "/restitution-calculator/static/js/main.b0765547.js",
+    "main.js": "/restitution-calculator/static/js/main.365841e2.js",
     "index.html": "/restitution-calculator/index.html",
     "main.d72caea6.css.map": "/restitution-calculator/static/css/main.d72caea6.css.map",
-    "main.b0765547.js.map": "/restitution-calculator/static/js/main.b0765547.js.map"
+    "main.365841e2.js.map": "/restitution-calculator/static/js/main.365841e2.js.map"
   },
   "entrypoints": [
     "static/css/main.d72caea6.css",
-    "static/js/main.b0765547.js"
+    "static/js/main.365841e2.js"
   ]
 }
