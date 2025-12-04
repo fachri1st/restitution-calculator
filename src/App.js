@@ -3,8 +3,9 @@ import { Calculator, Clock, DollarSign } from 'lucide-react';
 import './App.css';
 
 export default function App() {
-  const [downtimeLA, setDowntimeLA] = useState({ start: '', end: '' });
-  const [downtimePelanggan, setDowntimePelanggan] = useState({ start: '', end: '' });
+  const [serviceType, setServiceType] = useState('internet');
+  const [downtimeLA, setDowntimeLA] = useState({ hours: '', minutes: '', seconds: '' });
+  const [downtimePelanggan, setDowntimePelanggan] = useState({ hours: '', minutes: '', seconds: '' });
   const [jumlahHari, setJumlahHari] = useState('');
   const [stopclock, setStopclock] = useState({ hours: '', minutes: '', seconds: '' });
   const [invoice, setInvoice] = useState('');
@@ -15,27 +16,13 @@ export default function App() {
     restitusi: 0
   });
 
-  const SLA_GUARANTED = 99;
+  const SLA_GUARANTED = serviceType === 'internet' ? 99 : 99.95;
 
-  const parseTime = (start, end) => {
-    if (!start || !end) return 0;
-    
-    const [startHour, startMin] = start.split(':').map(Number);
-    const [endHour, endMin] = end.split(':').map(Number);
-    
-    let hours = endHour - startHour;
-    let minutes = endMin - startMin;
-    
-    if (minutes < 0) {
-      hours -= 1;
-      minutes += 60;
-    }
-    
-    if (hours < 0) {
-      hours += 24;
-    }
-    
-    return hours + (minutes / 60);
+  const parseTimeToHours = (hours, minutes, seconds) => {
+    const h = parseFloat(hours) || 0;
+    const m = parseFloat(minutes) || 0;
+    const s = parseFloat(seconds) || 0;
+    return h + (m / 60) + (s / 3600);
   };
 
   const formatRupiah = (value) => {
@@ -48,11 +35,9 @@ export default function App() {
   };
 
   useEffect(() => {
-    const downtimeLAHours = parseTime(downtimeLA.start, downtimeLA.end);
-    const downtimePelangganHours = parseTime(downtimePelanggan.start, downtimePelanggan.end);
-    const stopclockHours = (parseFloat(stopclock.hours) || 0) + 
-                           ((parseFloat(stopclock.minutes) || 0) / 60) + 
-                           ((parseFloat(stopclock.seconds) || 0) / 3600);
+    const downtimeLAHours = parseTimeToHours(downtimeLA.hours, downtimeLA.minutes, downtimeLA.seconds);
+    const downtimePelangganHours = parseTimeToHours(downtimePelanggan.hours, downtimePelanggan.minutes, downtimePelanggan.seconds);
+    const stopclockHours = parseTimeToHours(stopclock.hours, stopclock.minutes, stopclock.seconds);
     
     const days = parseFloat(jumlahHari) || 0;
     const totalHours = days * 24;
@@ -70,7 +55,7 @@ export default function App() {
         restitusi: restitusi
       });
     }
-  }, [downtimeLA, downtimePelanggan, jumlahHari, stopclock, invoice]);
+  }, [downtimeLA, downtimePelanggan, jumlahHari, stopclock, invoice, serviceType]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br p-4">
@@ -82,28 +67,77 @@ export default function App() {
           </div>
 
           <div className="space-y-6">
+            {/* Service Type Selection */}
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 p-5 rounded-xl text-white">
+              <label className="text-sm font-semibold mb-3 block">
+                Pilih Jenis Layanan <span className="text-yellow-300">*</span>
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setServiceType('internet')}
+                  className={`p-4 rounded-lg font-semibold transition-all ${
+                    serviceType === 'internet'
+                      ? 'bg-white text-indigo-600 shadow-lg'
+                      : 'bg-white/20 text-white hover:bg-white/30'
+                  }`}
+                >
+                  <div className="text-lg">🌐 Internet</div>
+                  <div className="text-sm mt-1">SLA 99%</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setServiceType('cloud')}
+                  className={`p-4 rounded-lg font-semibold transition-all ${
+                    serviceType === 'cloud'
+                      ? 'bg-white text-purple-600 shadow-lg'
+                      : 'bg-white/20 text-white hover:bg-white/30'
+                  }`}
+                >
+                  <div className="text-lg">☁️ Cloud</div>
+                  <div className="text-sm mt-1">SLA 99.95%</div>
+                </button>
+              </div>
+            </div>
             {/* Downtime LA */}
             <div className="bg-indigo-50 p-5 rounded-xl">
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                 <Clock className="w-4 h-4" />
                 Downtime LA <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-xs text-gray-600 mb-1 block">Mulai</label>
+                  <label className="text-xs text-gray-600 mb-1 block">Jam</label>
                   <input
-                    type="time"
-                    value={downtimeLA.start}
-                    onChange={(e) => setDowntimeLA({ ...downtimeLA, start: e.target.value })}
+                    type="number"
+                    value={downtimeLA.hours}
+                    onChange={(e) => setDowntimeLA({ ...downtimeLA, hours: e.target.value })}
+                    placeholder="0"
+                    min="0"
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-600 mb-1 block">Hingga</label>
+                  <label className="text-xs text-gray-600 mb-1 block">Menit</label>
                   <input
-                    type="time"
-                    value={downtimeLA.end}
-                    onChange={(e) => setDowntimeLA({ ...downtimeLA, end: e.target.value })}
+                    type="number"
+                    value={downtimeLA.minutes}
+                    onChange={(e) => setDowntimeLA({ ...downtimeLA, minutes: e.target.value })}
+                    placeholder="0"
+                    min="0"
+                    max="59"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-600 mb-1 block">Detik</label>
+                  <input
+                    type="number"
+                    value={downtimeLA.seconds}
+                    onChange={(e) => setDowntimeLA({ ...downtimeLA, seconds: e.target.value })}
+                    placeholder="0"
+                    min="0"
+                    max="59"
                     required
                   />
                 </div>
@@ -116,21 +150,37 @@ export default function App() {
                 <Clock className="w-4 h-4" />
                 Downtime Pelanggan
               </label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-xs text-gray-600 mb-1 block">Mulai</label>
+                  <label className="text-xs text-gray-600 mb-1 block">Jam</label>
                   <input
-                    type="time"
-                    value={downtimePelanggan.start}
-                    onChange={(e) => setDowntimePelanggan({ ...downtimePelanggan, start: e.target.value })}
+                    type="number"
+                    value={downtimePelanggan.hours}
+                    onChange={(e) => setDowntimePelanggan({ ...downtimePelanggan, hours: e.target.value })}
+                    placeholder="0"
+                    min="0"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-600 mb-1 block">Hingga</label>
+                  <label className="text-xs text-gray-600 mb-1 block">Menit</label>
                   <input
-                    type="time"
-                    value={downtimePelanggan.end}
-                    onChange={(e) => setDowntimePelanggan({ ...downtimePelanggan, end: e.target.value })}
+                    type="number"
+                    value={downtimePelanggan.minutes}
+                    onChange={(e) => setDowntimePelanggan({ ...downtimePelanggan, minutes: e.target.value })}
+                    placeholder="0"
+                    min="0"
+                    max="59"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-600 mb-1 block">Detik</label>
+                  <input
+                    type="number"
+                    value={downtimePelanggan.seconds}
+                    onChange={(e) => setDowntimePelanggan({ ...downtimePelanggan, seconds: e.target.value })}
+                    placeholder="0"
+                    min="0"
+                    max="59"
                   />
                 </div>
               </div>
@@ -215,7 +265,9 @@ export default function App() {
             {/* Results */}
             <div className="mt-8 space-y-4">
               <div className="result-card result-card-gray">
-                <div className="text-sm font-medium mb-1">SLA Guaranted</div>
+                <div className="text-sm font-medium mb-1">
+                  SLA Guaranted - {serviceType === 'internet' ? 'Internet' : 'Cloud'}
+                </div>
                 <div className="text-3xl font-bold">{SLA_GUARANTED}%</div>
               </div>
 
@@ -237,7 +289,7 @@ export default function App() {
                 {results.slaLA >= SLA_GUARANTED && (
                   <div className="note-box">
                     <p>ℹ️ Tidak mendapatkan restitusi</p>
-                    <p>SLA LA berada di atas atau sama dengan SLA Guaranted (99%)</p>
+                    <p>SLA LA berada di atas atau sama dengan SLA Guaranted ({SLA_GUARANTED}%)</p>
                   </div>
                 )}
               </div>
